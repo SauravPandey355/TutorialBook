@@ -1,0 +1,129 @@
+<html>
+<style>
+td{
+text-align:center;
+border: 1px solid black;
+}
+</style>
+<body>
+<div style = "text-align:center;"><h1>
+Tutorial Page</h1>
+</div>
+<div style = "text-align:center; border-bottom: 2px solid blue; border-top: 2px solid red;">
+    <h3>Add links</h3>
+    <form  id = "detailsForm" onsubmit = "saveData()" style="align-items:center;">
+        <input type ="text" id="name"></input>
+        <input type ="text" id="tutorialBookId"></input>
+        <button type = "submit" id = "submit">submit</button>
+    </form>
+</div>
+<div style="text-align:center; border: 2px solid black;align-items:center;">
+    <h2>Current data</h2>
+    <table id="users" style="margin-left: auto;margin-right: auto;"></table>
+    <h1 id = "error"></h1>
+</form>
+</div>
+<script>
+    saveData = (event) => 
+    {
+        
+        var data = new FormData();
+        data.append("name",document.getElementById("name").value);
+        data.append("tutorialBookId",document.getElementById("tutorialBookId").value);
+        console.log(data);
+        fetch("https://localhost:44322/post",{method:"POST",body:data})
+        .then(res=>
+        {
+            if(res.status != 200) throw new Error ();
+            else{
+                GetData();
+            }
+        })
+        .catch(er=>
+        {
+            console.log(er);
+            document.getElementById("error").innerHTML = "Failed to save API not responding";
+        });
+    }
+
+    GetData = () => {
+        
+    fetch("https://localhost:44322/show",{method:"GET"})
+    .then(res=>res.json())
+    .then(output=>{
+    console.log("Output",output);
+    let KVP = new String();
+    let table= '<tr><th>Name</th><th>Website</th></tr>';
+    output.forEach(user=>{
+        var rowId = "update"+user.id;
+        KVP += rowId+",";
+        table+= `<tr><td>
+        <input type = text id = ${rowId}a value = ${user.name}></td>
+        <td><input type = text id = ${rowId}b value = ${user.tutorialBookId}></input></td>
+        <td><button id = ${rowId}>Update</button></td>
+        <td><button id = ${rowId}d>Delete</button></td>
+        </tr>`;
+    })
+    document.getElementById("users").innerHTML = table;
+    KVP.split(",").forEach(item=>{
+        if(item != null && item != ''){
+        document.getElementById(item).addEventListener("click",updateFormData);
+        document.getElementById(item+"d").addEventListener("click",deleteFormData);
+        }
+    });
+    }).catch(er=>{
+        console.log("Runtime error",er);
+        document.getElementById("error").innerHTML = "Failed to load API server issue";
+    });
+    }
+
+    updateFormData = (event) =>{
+        console.log(event.path[0].id);
+        var elementId = new String(event.path[0].id.toString());
+        var id = elementId.slice(6,42);
+        var data = new FormData();
+        data.append("name",document.getElementById(elementId+"a").value);
+        data.append("tutorialBookId",document.getElementById(elementId+"b").value);
+        data.append("Id",id);
+        console.log(data,id);
+        fetch("https://localhost:44322/update",{method:"PUT",body:data})
+        .then(res=>
+        {
+            if(res.status != 200) throw new Error ();
+            else{
+                GetData();
+            }
+        })
+        .catch(er=>
+        {
+            console.log(er);
+            document.getElementById("error").innerHTML = "Failed to save API not responding";
+        });
+    }
+
+    deleteFormData = (event) =>{
+        console.log(event.path[0].id);
+        var elementId = new String(event.path[0].id.toString());
+        var id = elementId.slice(6,42);
+        var data = new FormData();
+        data.append("Id",id);
+        console.log(data,id);
+        fetch("https://localhost:44322/delete",{method:"DELETE",body:data})
+        .then(res=>
+        {
+            if(res.status != 200) throw new Error ();
+            else{
+                GetData();
+            }
+        })
+        .then(data=>console.log(data))
+        .catch(er=>
+        {
+            console.log(er);
+            document.getElementById("error").innerHTML = "Failed to save API not responding";
+        });
+    }
+    GetData();
+</script>
+</body>
+</html>
