@@ -51,15 +51,18 @@ Tutorial Page</h1>
     fetch("https://localhost:44322/show",{method:"GET"})
     .then(res=>res.json())
     .then(output=>{
-    console.log("Output",output);
     let KVP = new String();
-    let table= '<tr><th>Name</th><th>Website</th></tr>';
-    output.forEach(user=>{
+    let table= '<tr><th>Name</th><th>Enter New URL</th><th>Website</th></tr>';
+        output.forEach(user => {
         var rowId = "update"+user.id;
-        KVP += rowId+",";
-        table+= `<tr><td>
-        <input type = text id = ${rowId}a value = ${user.name}></td>
-        <td><input type = text id = ${rowId}b value = ${user.tutorialBookId}></input></td>
+            KVP += rowId + ",";
+            var result = user.tutorialBookId.toString();
+        table += `<tr><td>
+        <textarea id = ${rowId}a rows = 1>${user.name}</textarea></td>
+        <td><textarea rows = 1 id = ${rowId}b>
+        ${result}
+        </textarea></td>
+        <td><a href = "${result}">${result}</a></td>
         <td><button id = ${rowId}>Update</button></td>
         <td><button id = ${rowId}d>Delete</button></td>
         </tr>`;
